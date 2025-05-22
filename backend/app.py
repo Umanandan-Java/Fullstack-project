@@ -5,18 +5,19 @@ import jwt
 import datetime
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5174"}}, supports_credentials=True)
  # Allows cookies to be passed from frontend
 app.config['SECRET_KEY'] = 'your_super_secret_key'  # Replace with a secure key in production
 
 # --- DB Connection ---
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="chromePassword12",
-        database="userdb"
-    )
+            host="localhost",
+            user="root",
+            password="chromePassword12",
+            database="userdb"
+        )
+    
 
 def verify_jwt():
     token = request.cookies.get('token')
