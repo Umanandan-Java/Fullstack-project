@@ -1,48 +1,70 @@
 <header>
-    <div class="logo">
-      <img src="/logo-anu.png" alt="" />
-    </div>
-    <div class="main-heading">
-      <h3>Centre For Distance Education</h3>
-      <h3>Acharya Nagarjuna University</h3>
-      <p>(Recognised by Distance Education Bureau, New Delhi)</p>
-    </div>
-    <div class="logo2">
-      <img src="/download.jpg" alt="" />
-    </div>
-  </header>
+  <div class="logo">
+    <img src="/logo-anu.png" alt="" />
+  </div>
+  <div class="main-heading">
+    <h3>Centre For Distance Education</h3>
+    <h3>Acharya Nagarjuna University</h3>
+    <p>(Recognised by Distance Education Bureau, New Delhi)</p>
+  </div>
+  <div class="logo2">
+    <img src="/download.jpg" alt="" />
+  </div>
+</header>
+
+<main class="page-content">
   <slot />
-  <style>
+</main>
+
+<style>
   header {
-    width: 100%;
-    height: 25%;
+    position:relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px; /* fixed height */
+    background-color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 20px;
+    padding: 0 20px;
+    z-index: 1000;
   }
+
   .logo,
   .logo2,
   .main-heading {
-    padding: 0px;
+    padding: 0;
   }
+
   header .logo img {
     max-width: 70px;
-    margin: 0px;
+    margin: 0;
   }
+
   header .logo2 img {
     max-width: 50px;
-    margin: 0px;
+    margin: 0;
   }
+
   header .main-heading {
     display: flex;
-    justify-content: center;
     flex-direction: column;
     align-items: center;
-    padding: 0px;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
   }
+
   header .main-heading h3,
   header .main-heading p {
-    margin: 0px;
+    margin: 0;
   }
-  </style>
+
+  .page-content {
+    /* padding-top: 100px; exactly same as header height */
+    max-width: 80%;
+    margin: 0 auto;
+  }
+</style>

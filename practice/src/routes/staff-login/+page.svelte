@@ -1,6 +1,6 @@
 <script>
     import { goto } from '$app/navigation';
-    import { isAuthenicated, role_name } from '../../stores/auth';
+    import { isAuthenicated, role_name } from '../../store/auth';
     
     let username = '';  // This is actually the role (Admin or Registrer)
     let password = '';
