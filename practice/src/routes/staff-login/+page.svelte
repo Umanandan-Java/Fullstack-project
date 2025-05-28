@@ -4,30 +4,26 @@
     
     let username = '';  // This is actually the role (Admin or Registrer)
     let password = '';
-    let registration_no='';
 
     // Handle form submission
     async function handleSubmit(event) {
         event.preventDefault();
         console.log("triggered")
         try {
-            const response = await fetch('http://localhost:5000/api/login', {
+            const response = await fetch('http://localhost:5000/staff-login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password,registration_no }),
-                // credentials: 'include'  // Send role as username
+                body: JSON.stringify({ username, password }),
+                credentials: 'include'  // Send role as username
             });
+
+            if (response.ok) {
                 
-         if (!response.ok) {
-        throw new Error('Login failed');
-    }
+                // isAuthenicated.set(true);
+                goto('/staff-page')
 
-        const result = await response.json();  // <-- assign result here
-
-        if (result.success) {
-        goto(result.redirect);  // <-- now result is defined
-    } 
-            else {
+                
+            } else {
                 const errorData = await response.json()
                 console.error("Login failed:", errorData.message);
                 alert("Login failed: " + errorData.message);
@@ -45,7 +41,7 @@
 <div class="main">
     <div class="box">
         <form on:submit={handleSubmit}>
-            <h2>Login</h2>
+            <h2>Staff - Login</h2>
 
             <!-- Role selection -->
             <!-- <select name="role" id="roleselect" bind:value={username} required>
@@ -53,7 +49,6 @@
                 <option value="Admin">Admin</option>
                 <option value="Registrer">Registrer</option>
             </select> -->
-            <input type="text" placeholder="registration_no" bind:value={registration_no}>
             <input type="text" placeholder="username" bind:value={username}>
             <!-- Password input -->
             <input type="password" placeholder="Password" bind:value={password} required>

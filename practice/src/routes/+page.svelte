@@ -11,7 +11,7 @@
     <!-- Staff Section -->
     <div class="staff">
       <h3>If you are a staff member</h3>
-      <button class="staff-login" on:click={() => (location.href = "/Staff-login")}> Staff - Login </button>
+      <button class="staff-login" on:click={() => (location.href = "/staff-login")}> Staff - Login </button>
     </div>
 
     <!-- Student Section -->

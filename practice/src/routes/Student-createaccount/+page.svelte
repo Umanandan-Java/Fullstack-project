@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   let username = '';
   let password = '';
+  let reg_no = '';
   let confirmPassword = '';
   let error = '';
     function goToAnotherPage() {
@@ -26,7 +27,8 @@
           },
           body: JSON.stringify({
             username: username,
-            password: password
+            password: password,
+            reg_no:reg_no,
           }),
         });
 
@@ -50,6 +52,12 @@
   <div class="box">
     <form on:submit|preventDefault={handleSubmit}>
       <h2>Create Account</h2>
+      <input
+        type="text"
+        placeholder="Registration Number"
+        bind:value={reg_no}
+        required
+      />
       <input
         type="text"
         placeholder="Username"
