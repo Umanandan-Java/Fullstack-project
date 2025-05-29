@@ -15,6 +15,7 @@
   let mobile_number = "";
   let physically_challenged = "";
   let locality = "";
+  let State;
 
   // Course
   let course_category = "";
@@ -74,7 +75,7 @@
 
   function isUnderKB(file) {
     if (!file) return false;
-    return file.size / 1024 <= max_image_size;
+    return file.size <= max_image_size * 1024;
   }
 
   async function handledetails() {
@@ -83,6 +84,7 @@
     formData.append("student_name", student_name);
     formData.append("father_name", father_name);
     formData.append("mother_name", mother_name);
+    formData.append("state", State);
     formData.append("gender", gender);
     formData.append("marital_status", marital_status);
     formData.append("dob", dob);
@@ -132,7 +134,6 @@
       console.error(error.message);
     }
   }
-
   // Scroll helper for Next buttons
   function scrollToSection(sectionRef) {
     sectionRef.scrollIntoView({ behavior: "smooth" });
@@ -147,7 +148,7 @@
       <h2>Personal Details</h2>
       <div class="grid">
         <div class="form-group">
-          <label for="student_name">Name of the Candidate</label>
+          <label for="student_name">Name of the Candidate (accoirding to the SSC Marks Memo)</label>
           <input id="student_name" type="text" bind:value={student_name} required />
         </div>
 
@@ -170,8 +171,12 @@
         </div>
 
         <div class="form-group">
-          <label for="marital_status">Marital Status</label>
-          <input id="marital_status" type="text" bind:value={marital_status} />
+          <label for="marital_status">Marital Status Category</label>
+          <select id="marital_status" bind:value={marital_status} required>
+            <option value="" disabled selected>Select marital status</option>
+            <option value="Unmarried" >Unmarried</option>
+            <option value="Married" >Married</option>
+            <option value="Others" >Others</option>
         </div>
 
         <div class="form-group">
@@ -186,7 +191,18 @@
 
         <div class="form-group">
           <label for="caste">Caste</label>
-          <input id="caste" type="text" bind:value={caste} />
+          <select name="caste" id="" bind:value={caste}>
+            <option value="" selected disabled>-- Select Caste -- </option>
+            <option value="OC" >OC</option>
+            <option value="EWS" >EWS</option>
+            <option value="BC-A" >BC-A</option>
+            <option value="BC-B" >BC-B</option>
+            <option value="BC-C" >BC-C</option>
+            <option value="BC-D" >BC-D</option>
+            <option value="BC-E" >BC-E</option>
+            <option value="SC" >SC</option>
+            <option value="ST" >ST</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -196,12 +212,16 @@
 
         <div class="form-group">
           <label for="aadhar_number">Aadhar Number</label>
-          <input id="aadhar_number" type="text" bind:value={aadhar_number} />
+          <input id="aadhar_number" type="text" bind:value={aadhar_number} placeholder="XXXX XXXX XXXX" />
         </div>
 
         <div class="form-group">
           <label for="mobile_number">Mobile Number</label>
-          <input id="mobile_number" type="tel" bind:value={mobile_number} required />
+          <input id="mobile_number" type="tel" bind:value={mobile_number} required placeholder="+91 XXXXXXXXXX" />
+        </div>
+        <div class="form-group">
+          <label for="State">State</label>
+          <input id="State" type="tel" bind:value={State} required placeholder="Enter State" />
         </div>
 
         <div class="form-group full-width">
@@ -213,8 +233,8 @@
         </div>
 
         <div class="form-group full-width">
-          <label for="locality">Locality</label>
-          <textarea id="locality" rows="2" bind:value={locality}></textarea>
+          <label for="locality">Address</label>
+          <textarea id="locality" rows="2"  bind:value={locality}></textarea>
         </div>
       </div>
 
@@ -238,13 +258,13 @@
         <div class="form-group">
           <label for="course_of_application">Course of Application</label>
           <select
-            id="course_of_application"
-            bind:value={course_of_application}
-            required
-            disabled={!course_category}
+          id="course_of_application"
+          bind:value={course_of_application}
+          required
+          disabled={!course_category}
           >
-            <option value="" disabled selected>Select Course</option>
-            {#if course_category}
+          <option value="" disabled selected>Select Course</option>
+          {#if course_category}
               {#each subCourses[course_category] as sub}
                 <option value={sub.value}>{sub.label}</option>
               {/each}

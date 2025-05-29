@@ -3,6 +3,7 @@ from flask_cors import CORS
 import mysql.connector
 import jwt
 import datetime
+
 # import mysql.connector
 
 app = Flask(__name__)
@@ -16,6 +17,13 @@ def get_db_connection():
         user="root",
         password="chromePassword12",
         database="userdb"
+    )
+def get_db_connection_2():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="chromePassword12",
+        database="student"
     )
 
 # --- JWT Verification ---
@@ -65,20 +73,20 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    Registration_no = data.get('registration_no') 
-    connection = get_db_connection()
+    student_name = data.get('student_name') 
+    connection = get_db_connection_2()
     cursor = connection.cursor(dictionary=True)
 
     try:
         # Get user by username
-        cursor.execute("SELECT * FROM useraccounts WHERE username = %s", (username,))
+        cursor.execute("SELECT * FROM student_accounts WHERE student_name = %s", (username,))
         user = cursor.fetchone()
         print(user)
         if user and user['password'] == password:
             
 
             # Check if the student has a profile
-            cursor.execute("SELECT * FROM student_registration WHERE Registration_no = %s", (Registration_no,))
+            cursor.execute("SELECT * FROM student_account_registration WHERE student_name = %s", (student_name,))
             profile = cursor.fetchone()
 
             # Create JWT token
@@ -89,7 +97,7 @@ def login():
             }, app.config['SECRET_KEY'], algorithm='HS256')
 
             
-            redirect_url = f'/profile?Registration_no={Registration_no}' if profile else '/student-page'
+            redirect_url = f'/profile?student_name={student_name}' if profile else '/student/student-page'
 
             # Send token and redirect URL to frontend
             response = make_response(jsonify({
@@ -270,55 +278,94 @@ def searchById():
 
 
 @app.route('/student-registration', methods=['POST'])
-def staff_registration():
-
-    application_no = request.form.get('Application_no')
-    registration_no = request.form.get('Registration_no')
-    firstname = request.form.get('firstname')
-    middlename = request.form.get('middlename')
-    lastname = request.form.get('lastname')
-    fathername = request.form.get('fathername')
-    qualification = request.form.get('qualification')
-    year = request.form.get('year')
-    passport_size_photo = request.files.get('passport_size_photo')
-    tenth_memo = request.files.get('tenth_memo')
-    inter_marksheet = request.files.get('inter_marksheet')
-    degree_marksheet = request.files.get('degree_marksheet')
-    degree_tc = request.files.get('degree_tc')
-
+def student_registration():
     try:
-        con = get_db_connection()
-        cursor = con.cursor(dictionary=True)
+        conn = get_db_connection_2()
+        cursor = conn.cursor()
 
+        data = request.form
+        files = request.files
 
-        # Read file contents as bytes, or None if no file uploaded
-        passport_size_photo_data = passport_size_photo.read() if passport_size_photo else None
-        tenth_memo_data = tenth_memo.read() if tenth_memo else None
-        inter_marksheet_data = inter_marksheet.read() if inter_marksheet else None
-        degree_marksheet_data = degree_marksheet.read() if degree_marksheet else None
-        degree_tc_data = degree_tc.read() if degree_tc else None
+        # Helper function to safely get binary file data
+        def get_file_bytes(file_key):
+            return files[file_key].read() if file_key in files and files[file_key].filename != '' else None
 
-        # Insert into your table (adjust table & column names accordingly)
-        query = """
+        # Fetch form data and optional file uploads
+        values = (
+            data.get('student_name'),
+            data.get('father_name'),
+            data.get('mother_name'),
+            data.get('gender'),
+            data.get('marital_status'),
+            data.get('state'),
+
+            data.get('dob'),
+            data.get('religion'),
+            data.get('caste'),
+            data.get('nationality'),
+            data.get('aadhar_number'),
+            data.get('mobile_number'),
+            data.get('physically_challenged'),
+            data.get('locality'),
+            data.get('course_category'),
+            data.get('course_of_application'),
+            data.get('degree_group') or None,
+            data.get('degree_college_name') or None,
+            data.get('degree_year_of_passing') or None,
+            data.get('degree_reg_number') or None,
+            data.get('degree_aggregate_percentage') or None,
+            data.get('inter_group'),
+            data.get('inter_college_name'),
+            data.get('inter_year_of_passing'),
+            data.get('inter_reg_number'),
+            data.get('inter_aggregate_percentage'),
+            data.get('tenth_school_name'),
+            data.get('tenth_year_of_passing'),
+            data.get('tenth_reg_number'),
+            data.get('tenth_aggregate_percentage'),
+            get_file_bytes('passport_size_photo'),
+            get_file_bytes('tenth_memo'),
+            get_file_bytes('inter_marksheet'),
+            get_file_bytes('degree_marksheet'),  # optional
+            get_file_bytes('degree_tc')          # optional
+        )
+
+        sql = """
             INSERT INTO student_registration (
-                Application_no, Registration_no, firstname, middlename, lastname, fathername,
-                qualification, year, tenth_memo, inter_marksheet, degree_marksheet, degree_tc,passport_size_photo
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
-        """
-        cursor.execute(query, (
-            application_no, registration_no, firstname, middlename, lastname, fathername,
-            qualification, year, tenth_memo_data, inter_marksheet_data, degree_marksheet_data, degree_tc_data,passport_size_photo_data
-        ))
+            student_name, father_name, mother_name, gender, marital_status,
+            dob, religion, caste, nationality, aadhar_number, mobile_number,
+            physically_challenged, locality, state,course_category, course_of_application,
+            degree_group, degree_college_name, degree_year_of_passing, degree_reg_number,
+            degree_aggregate_percentage, inter_group, inter_college_name, inter_year_of_passing,
+            inter_reg_number, inter_aggregate_percentage, tenth_school_name, tenth_year_of_passing,
+            tenth_reg_number, tenth_aggregate_percentage, passport_size_photo, tenth_memo,
+            inter_marksheet, degree_marksheet, degree_tc) VALUES (
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,%s)
+            """
 
-        con.commit()
-        cursor.close()
+        cursor.execute(sql, values)
+        conn.commit()
 
-        return jsonify({"message": "Student Registration successful"}), 200
+        return jsonify({"message": "Student registered successfully"}), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
+        print(f"Database error: {e}")
+        return jsonify({"message": "Database error", "error": str(e)}), 500
 
+    except Exception as e:
+        print(f"Server error: {e}")
+        return jsonify({"message": "Server error", "error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
     
 # userimage
 
@@ -326,20 +373,20 @@ def staff_registration():
 
 @app.route('/user-details', methods=['GET'])
 def get_user_details():
-    Registration_no = request.args.get('registration_number')
+    student_name = request.args.get('student_name')
 
-    if not Registration_no:
-        return jsonify({"error": "Registration number is required"}), 400
+    if not student_name:
+        return jsonify({"error": "student name is required"}), 400
 
-    conn = get_db_connection()
+    conn = get_db_connection_2()
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT Application_no, Registration_no, firstname, middlename, lastname,
-               fathername, qualification, year,application_status
+        SELECT student_name,
+               father_name, mother_name, dob,caste
         FROM student_registration
-        WHERE Registration_no = %s
-    """, (Registration_no,))
+        WHERE student_name = %s
+    """, (student_name,))
     user = cursor.fetchone()
     print(user)
     cursor.close()
@@ -347,7 +394,7 @@ def get_user_details():
 
     if user:
         # Generate a pseudo URL pointing to the image endpoint
-        user["image_url"] = f"http://localhost:5000/user-image?registration_number={Registration_no}"
+        user["image_url"] = f"http://localhost:5000/user-image?student_name={student_name}"
         return jsonify(user)
     else:
         return jsonify({"error": "User not found"}), 404

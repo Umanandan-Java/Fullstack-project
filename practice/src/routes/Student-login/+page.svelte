@@ -54,7 +54,7 @@
                 <option value="Registrer">Registrer</option>
             </select> -->
             <input type="text" placeholder="registration_no" bind:value={registration_no}>
-            <input type="text" placeholder="username" bind:value={username}>
+            <i class='bx  bx-user-circle'  ></i><input type="text" placeholder="username" bind:value={username}>
             <!-- Password input -->
             <input type="password" placeholder="Password" bind:value={password} required>
 

@@ -28,15 +28,26 @@
     background-image: url('/finalaerialview.png');
     background-size: cover;
     background-position: center;
-    filter: blur(2px);
+    filter: blur(1px);
     z-index: 0;
     transform: scale(1); /* prevent edges from showing when blurred */
   }
+  /* .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/banner1bg.png');
+    background-size: cover;
+    background-position: center;
+    filter: blur(1px);
+    z-index: 0;
+    transform: scale(1); /* prevent edges from showing when blurred */
+  
 
   .overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.8));
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.6));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -83,9 +94,9 @@
     width: 200px;
     color: white;
     padding: 10px 25px;
-    font-weight: bold;
+    /* font-weight: bold; */
     border-radius: 50px;
-    border: 1px solid white;
+    border: 2px solid white;
     font-size: 17px;
     display: flex;
     justify-content: space-evenly;

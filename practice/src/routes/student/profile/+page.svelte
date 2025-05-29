@@ -2,15 +2,15 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
 
-  let registration_no;
+  let student_name;
   let userData = null;
 
-  $: registration_no = $page.url.searchParams.get("Registration_no");
+  $: student_name = $page.url.searchParams.get("student_name");
 
   onMount(async () => {
-    if (registration_no) {
+    if (student_name) {
       try {
-        const res = await fetch(`http://localhost:5000/user-details?registration_number=${registration_no}`);
+        const res = await fetch(`http://localhost:5000/user-details?student_name=${student_name}`);
         if (res.ok) {
           userData = await res.json();
         } else {
@@ -27,7 +27,7 @@
   <div class="dashboard">
     <div class="box">
       {#if userData}
-        <img src={userData.image_url} alt="Profile Photo" class="profile" />
+        <img src={userData.image_url} alt="" class="profile" />
       {/if}
     </div>
 
@@ -35,11 +35,10 @@
       <div class="details">
         <h2>Student Information</h2>
         <div class="info-grid">
-          <p><strong>Name:</strong> {userData.firstname} {userData.middlename} {userData.lastname}</p>
-          <p><strong>Father's Name:</strong> {userData.fathername}</p>
-          <p><strong>Qualification:</strong> {userData.qualification}</p>
-          <p><strong>Passed Out Year:</strong> {userData.year}</p>
-          <p><strong>Application Status</strong> {userData.application_status}</p>
+          
+          <p><strong>Father's Name:</strong> {userData.father_name}</p>
+          <p><strong>Qualification:</strong> {userData.dob}</p>
+          <p><strong>Application Status</strong> {userData.mother_name}</p>
         </div>
       </div>
     {/if}
