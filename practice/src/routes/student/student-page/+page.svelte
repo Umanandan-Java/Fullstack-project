@@ -253,7 +253,6 @@
         </div>
       </div>
 
-      <button type="button" class="btn-prev" on:click={() => scrollToSection()}>Previous</button>
       <button type="button" class="btn-next" on:click={() => scrollToSection(academicDetailsRef)}>Next</button>
     </section>
 
@@ -373,7 +372,6 @@
       </fieldset>
 
       <div class="buttons">
-        <button type="button" class="btn-prev" on:click={() => scrollToSection(courseDetailsRef)}>Previous</button>
         <button type="submit" class="btn-submit">Submit</button>
       </div>
     </section>
@@ -509,11 +507,13 @@
     background-color: #a0aec0;
     color: white;
   }
-  .btn-prev:hover {
-    background-color: #718096;
+  .buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+       
   }
-
-  .btn-submit {
+  .buttons .btn-submit{
     background-color: #38a169;
     color: white;
   }
