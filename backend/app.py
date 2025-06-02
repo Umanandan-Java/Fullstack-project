@@ -39,6 +39,56 @@ def verify_jwt():
 
 # --- Account Creation ---
 
+# --- Login (JWT) ---Add commentMore actions
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    student_name = data.get('student_name') 
+    connection = get_db_connection_2()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        # Get user by username
+        cursor.execute("SELECT * FROM student_accounts WHERE student_name = %s", (username,))
+        user = cursor.fetchone()
+        print(user)
+        if user and user['password'] == password:
+            
+
+            # Check if the student has a profile
+            cursor.execute("SELECT * FROM student_account_registration WHERE student_name = %s", (student_name,))
+            profile = cursor.fetchone()
+
+            # Create JWT token
+            token = jwt.encode({
+                'username': username,
+                # 'registration_no': registration_no,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+
+            
+            redirect_url = f'/profile?student_name={student_name}' if profile else '/student/student-page'
+
+            # Send token and redirect URL to frontend
+            response = make_response(jsonify({
+                'success': True,
+                'redirect': redirect_url
+            }))
+            response.set_cookie('token', token, httponly=True, samesite='Strict')
+            return response, 200
+
+        return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+
+    except mysql.connector.Error as err:
+        return jsonify({'message': f"Database error: {err}"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
+
 @app.route('/student_create_account', methods=['POST'])
 def create_account():
     data = request.get_json()
