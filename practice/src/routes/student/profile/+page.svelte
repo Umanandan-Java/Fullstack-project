@@ -2,15 +2,15 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
 
-  let student_name;
+  let username;
   let userData = null;
 
-  $: student_name = $page.url.searchParams.get("student_name");
+  $: username = $page.url.searchParams.get("username");
 
   onMount(async () => {
     if (student_name) {
       try {
-        const res = await fetch(`http://localhost:5000/user-details?student_name=${student_name}`);
+        const res = await fetch(`http://localhost:5000/user-details?username=${username}`);
         if (res.ok) {
           userData = await res.json();
         } else {

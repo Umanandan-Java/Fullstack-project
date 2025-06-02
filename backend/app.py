@@ -38,24 +38,28 @@ def verify_jwt():
         return None
 
 # --- Account Creation ---
-@app.route('/create_account', methods=['POST'])
+
+@app.route('/student_create_account', methods=['POST'])
 def create_account():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    reg_no = data.get('reg_no')
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
 
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+
+   
     try:
-        cursor.execute("SELECT * FROM useraccounts WHERE username = %s", (username,))
+        connection = get_db_connection_2()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM student_registration_account WHERE username = %s", (username,))
         if cursor.fetchone():
             return jsonify({'error': 'Username already exists'}), 409
-        cursor.execute("Select * from useraccounts where reg_no = %s",(reg_no,))
-        if cursor.fetchone():
-            return jsonify({"error":'Already registered with this Registration Number'})
 
-        cursor.execute("INSERT INTO useraccounts (reg_no,username,password) VALUES (%s,%s, %s)", (reg_no,username, password))
+        cursor.execute(
+            "INSERT INTO student_registration_account (username, password) VALUES (%s, %s)",
+            (username,password)
+        )
         connection.commit()
         return jsonify({'message': 'Account created successfully'}), 201
 
@@ -65,57 +69,6 @@ def create_account():
     finally:
         cursor.close()
         connection.close()
-
-# --- Login (JWT) ---
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    student_name = data.get('student_name') 
-    connection = get_db_connection_2()
-    cursor = connection.cursor(dictionary=True)
-
-    try:
-        # Get user by username
-        cursor.execute("SELECT * FROM student_accounts WHERE student_name = %s", (username,))
-        user = cursor.fetchone()
-        print(user)
-        if user and user['password'] == password:
-            
-
-            # Check if the student has a profile
-            cursor.execute("SELECT * FROM student_account_registration WHERE student_name = %s", (student_name,))
-            profile = cursor.fetchone()
-
-            # Create JWT token
-            token = jwt.encode({
-                'username': username,
-                # 'registration_no': registration_no,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
-            }, app.config['SECRET_KEY'], algorithm='HS256')
-
-            
-            redirect_url = f'/profile?student_name={student_name}' if profile else '/student/student-page'
-
-            # Send token and redirect URL to frontend
-            response = make_response(jsonify({
-                'success': True,
-                'redirect': redirect_url
-            }))
-            response.set_cookie('token', token, httponly=True, samesite='Strict')
-            return response, 200
-
-        return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
-
-    except mysql.connector.Error as err:
-        return jsonify({'message': f"Database error: {err}"}), 500
-
-    finally:
-        cursor.close()
-        connection.close()
-
 # --- Student Submission (Protected) ---
 @app.route('/datasubmission', methods=['POST'])
 def handlesubmission():
@@ -292,6 +245,7 @@ def student_registration():
 
         # Fetch form data and optional file uploads
         values = (
+            data.get('username'),
             data.get('student_name'),
             data.get('father_name'),
             data.get('mother_name'),
@@ -331,7 +285,7 @@ def student_registration():
         )
 
         sql = """
-            INSERT INTO student_registration (
+            INSERT INTO student_registration (username,
             student_name, father_name, mother_name, gender, marital_status,
             dob, religion, caste, nationality, aadhar_number, mobile_number,
             physically_challenged, locality, state,course_category, course_of_application,
@@ -340,7 +294,7 @@ def student_registration():
             inter_reg_number, inter_aggregate_percentage, tenth_school_name, tenth_year_of_passing,
             tenth_reg_number, tenth_aggregate_percentage, passport_size_photo, tenth_memo,
             inter_marksheet, degree_marksheet, degree_tc) VALUES (
-                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,%s,
                 %s, %s, %s, %s, %s, %s,
                 %s, %s, %s, %s, %s, %s, %s, %s, %s,
                 %s, %s, %s, %s, %s,
@@ -372,10 +326,10 @@ def student_registration():
 
 
 @app.route('/user-details', methods=['GET'])
-def get_user_details():
-    student_name = request.args.get('student_name')
-
-    if not student_name:
+def get_profile_details():
+    username = request.args.get('username')
+    print("inside this python")
+    if not username:
         return jsonify({"error": "student name is required"}), 400
 
     conn = get_db_connection_2()
@@ -385,8 +339,8 @@ def get_user_details():
         SELECT student_name,
                father_name, mother_name, dob,caste
         FROM student_registration
-        WHERE student_name = %s
-    """, (student_name,))
+        WHERE username = %s
+    """, (username,))
     user = cursor.fetchone()
     print(user)
     cursor.close()
@@ -394,7 +348,7 @@ def get_user_details():
 
     if user:
         # Generate a pseudo URL pointing to the image endpoint
-        user["image_url"] = f"http://localhost:5000/user-image?student_name={student_name}"
+        user["image_url"] = f"http://localhost:5000/user-image?username={username}"
         return jsonify(user)
     else:
         return jsonify({"error": "User not found"}), 404
@@ -404,14 +358,14 @@ from io import BytesIO
 
 @app.route('/user-image', methods=['GET'])
 def get_user_image():
-    Registration_no = request.args.get('registration_number')
+    username = request.args.get('username')
 
-    if not Registration_no:
+    if not username:
         return jsonify({"error": "Registration number is required"}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT passport_size_photo FROM student_registration WHERE Registration_no = %s", (Registration_no,))
+    cursor.execute("SELECT passport_size_photo FROM student_registration WHERE username = %s", (username,))
     row = cursor.fetchone()
     cursor.close()
     conn.close()

@@ -4,8 +4,6 @@
     
     let username = '';  // This is actually the role (Admin or Registrer)
     let password = '';
-    let registration_no='';
-
     // Handle form submission
     async function handleSubmit(event) {
         event.preventDefault();
@@ -14,7 +12,7 @@
             const response = await fetch('http://localhost:5000/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password,registration_no }),
+                body: JSON.stringify({ username, password }),
                 // credentials: 'include'  // Send role as username
             });
                 
@@ -53,8 +51,7 @@
                 <option value="Admin">Admin</option>
                 <option value="Registrer">Registrer</option>
             </select> -->
-            <input type="text" placeholder="registration_no" bind:value={registration_no}>
-            <i class='bx  bx-user-circle'  ></i><input type="text" placeholder="username" bind:value={username}>
+            <input type="text" placeholder="username" bind:value={username}>
             <!-- Password input -->
             <input type="password" placeholder="Password" bind:value={password} required>
 

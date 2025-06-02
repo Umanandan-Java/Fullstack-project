@@ -1,6 +1,12 @@
 <script>
   import { goto } from "$app/navigation";
+  import { page } from '$app/stores';
+  import { onMount } from 'svelte';
 
+  let username;
+  
+
+  $: username = $page.url.searchParams.get("username");
   // Personal details
   let student_name = "";
   let father_name = "";
@@ -52,6 +58,7 @@
     { value: "PG", label: "Postgraduate (PG)" },
   ];
 
+
   const subCourses = {
     UG: [
       { value: "ba", label: "BA (English, Hindi, History, etc.)" },
@@ -80,7 +87,7 @@
 
   async function handledetails() {
     const formData = new FormData();
-
+    formData.append("username",username);
     formData.append("student_name", student_name);
     formData.append("father_name", father_name);
     formData.append("mother_name", mother_name);

@@ -2,7 +2,6 @@
   import { goto } from '$app/navigation';
   let username = '';
   let password = '';
-  let reg_no = '';
   let confirmPassword = '';
   let error = '';
     function goToAnotherPage() {
@@ -20,7 +19,7 @@
 
       // Send data to Flask backend
       try {
-        const response = await fetch('http://localhost:5000/create_account', {
+        const response = await fetch('http://localhost:5000/student_create_account', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -28,7 +27,6 @@
           body: JSON.stringify({
             username: username,
             password: password,
-            reg_no:reg_no,
           }),
         });
 
@@ -52,12 +50,7 @@
   <div class="box">
     <form on:submit|preventDefault={handleSubmit}>
       <h2>Create Account</h2>
-      <input
-        type="text"
-        placeholder="Registration Number"
-        bind:value={reg_no}
-        required
-      />
+      
       <input
         type="text"
         placeholder="Username"
